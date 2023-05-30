@@ -10,5 +10,6 @@ namespace ML
     {
         public int IdZona { get; set; }
         public string Nombre { get; set; }
+        public List<Object> Zonas { get; set; }
     }
 }

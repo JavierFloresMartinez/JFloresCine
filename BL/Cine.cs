@@ -159,7 +159,7 @@ namespace BL
                         cine.Venta = (int)RowsAfected.Ventas;
                         cine.Zona = new ML.Zona();
                         cine.Zona.IdZona = (int)RowsAfected.IdZona;
-                        cine.Nombre = RowsAfected.Zona;
+                        cine.Zona.Nombre = RowsAfected.Zona;
                         result.Object = cine;
 
                         result.Correct = true;
