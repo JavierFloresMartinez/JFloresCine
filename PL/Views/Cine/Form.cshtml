@@ -13,20 +13,20 @@
         {
 
             <div class="row">
-                <div class="col" style="display:none">
+                <div class="col-md-3" style="display:none">
                     @Html.LabelFor(model => model.IdCine, new { @class = "visually-hidden" })
 
                     @Html.TextBoxFor(model => model.IdCine, new { @class = "visually-hidden form-control" })
                 </div>
-                <div class="col">
+                <div class="col-md-3">
                     @Html.LabelFor(model => model.Nombre)
 
-                    @Html.TextBoxFor(model => model.Nombre, new { @class = "form-control", @id = "txtNombre" })
+                    @Html.TextBoxFor(model => model.Nombre, new { @class = "form-control", @id = "txtDireccion", @name="txtDireccion" })
 
                     @Html.ValidationMessageFor(model => model.Nombre)
                 </div>
 
-                <div class="col">
+                <div class="col-md-9">
                     @Html.LabelFor(model => model.Direccion)
 
                     @Html.TextBoxFor(model => model.Direccion, new { @class = "form-control", @id = "Direccion", @name ="Direccion", @readonly = true })
@@ -34,14 +34,14 @@
                     @Html.ValidationMessageFor(model => model.Direccion)
                 </div>
 
-                <div class="col">
+                <div class="col-md-3">
                     @Html.LabelFor(model => model.Zona)
                     @Html.DropDownListFor(model => model.Zona.IdZona, new SelectList(Model.Zona.Zonas, "IdZona", "Nombre"), "Selecciona una opción", new { @class = "form-control" })
 
                     @Html.ValidationMessageFor(model => model.Zona.IdZona)
                 </div>
 
-                <div class="col">
+                <div class="col-md-3">
                     @Html.LabelFor(model => model.Venta)
 
                     @Html.TextBoxFor(model => model.Venta, new { @class = "form-control", @id = "txtNombre" })
@@ -56,7 +56,16 @@
                     <input class="btn btn-secondary" type="button" value="Haga Click Para Mostar El Mapa" onclick="DisplayGoogleMap()" />
 
                 </div>
-                 <div id="myDiv" style="width:100%;height:400px;"></div>
+                 <div id="myDiv" style="width:100%;height:400px;">
+                     
+                 </div>
+                <div style="display:none">
+                    <input type="text" id="txtLat" name="txtlat">
+                </div >
+                <div style="display:none">
+                    <input type="text" id="txtLng" name="txtLng">
+                </div>
+              
             </div>
  
             <br />
@@ -79,44 +88,183 @@
 <link rel="stylesheet" href="/resources/demos/style.css">
 <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
 <script src="https://maps.googleapis.com/maps/api/js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSKBDdPPlfca_zTwyxKiicRQn1qfgRjLw"></script>
 
      <script type="text/javascript">  
         function DisplayGoogleMap() {
-            var latitude;
-            var longitude;
+         
             var direccion = document.getElementById("Direccion").value;
-            var geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ 'address': direccion }, function (results, status) {
+            var vMarker;
+            var map;
+            var lat;
+            var lng;
 
-                if (status == google.maps.GeocoderStatus.OK) {
-                    latitude = results[0].geometry.location.lat();
-                    longitude = results[0].geometry.location.lng();
-                   
+            if (direccion == "") {
+                var geocoder = new google.maps.Geocoder();
+
+                //Establecer la latitud y la longitud del mapa
+                var myAddress = new google.maps.LatLng(19.4326296, -99.1331785);
+
+                //Crear opciones o establecer diferentes características de Google Map
+                var mapOptions = {
+                    center: myAddress,
+                    zoom: 15,
+                    minZoom: 15,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+
+                //Mostrar el mapa de Google en el control div con las Opciones definidas
+                map = new google.maps.Map(document.getElementById("myDiv"), mapOptions);
+
+                // Establecer marcador en el mapa
+                vMarker = new google.maps.Marker({
+                    position: myAddress,
+                    animation: google.maps.Animation.BOUNCE,
+                    draggable: true
+                });
+                google.maps.event.addListener(vMarker, 'dragend', function (evt) {
+                    $("#txtLat").val(evt.latLng.lat().toFixed(6));
+                    $("#txtLng").val(evt.latLng.lng().toFixed(6));
+
+                    map.panTo(evt.latLng);
+                });
+                map.setCenter(vMarker.position);
+                vMarker.setMap(map);
+
+                $("#txtDireccion").change(function () {
+                    movePin();
+                });
+
+                function movePin() {
+                    var geocoder = new google.maps.Geocoder();
+
+                    var inputAddress = $("#txtDireccion").val();
+                    geocoder.geocode({
+                        "address": inputAddress
+                    }, function (results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            vMarker.setPosition(new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()));
+                            map.panTo(new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()));
+                            $("#txtLat").val(results[0].geometry.location.lat());
+                            $("#txtLng").val(results[0].geometry.location.lng());
+                        }
+                        var latitud = document.getElementById("txtLat").value;
+                        var longitud = document.getElementById("txtLng").value;
+                        var latlng = new google.maps.LatLng(latitud, longitud);
+                        // This is making the Geocode request
+                        var geocoder1 = new google.maps.Geocoder();
+                        geocoder1.geocode({ 'latLng': latlng }, function (results, status) {
+                            if (status !== google.maps.GeocoderStatus.OK) {
+                                alert(status);
+                            }
+                            if (status == google.maps.GeocoderStatus.OK) {
+                                var address = (results[0].formatted_address);
+                                $("#Direccion").val(address);
+                            }
+                        });
+
+                    });
                 }
-            });
-            //Establecer la latitud y la longitud del mapa
-            var myAddress = new google.maps.LatLng(latitude, longitude);
 
-            //Crear opciones o establecer diferentes características de Google Map
-            var mapOptions = {  
-                center: myAddress,  
-                zoom: 15,  
-                minZoom: 15,  
-                mapTypeId: google.maps.MapTypeId.ROADMAP  
-            };
 
-            //Mostrar el mapa de Google en el control div con las Opciones definidas
-            var map = new google.maps.Map(document.getElementById("myDiv"), mapOptions);
+            }else{
+                var geocoder = new google.maps.Geocoder();
 
-            // Establecer marcador en el mapa
-            var marker = new google.maps.Marker({  
-                position: myAddress,  
-                animation: google.maps.Animation.BOUNCE,  
-            });  
-  
-            marker.setMap(map);  
-           }      
+
+                var geocoder = new google.maps.Geocoder();
+
+                var inputAddress = direccion
+                geocoder.geocode({
+                    "address": inputAddress
+                }, function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        $("#txtLat").val(results[0].geometry.location.lat());
+                        $("#txtLng").val(results[0].geometry.location.lng());
+                    }
+                     lat = document.getElementById("txtLat").value;
+                     lng = document.getElementById("txtLng").value;
+
+                    //Establecer la latitud y la longitud del mapa
+                    var myAddress = new google.maps.LatLng(lat, lng);
+
+                    //Crear opciones o establecer diferentes características de Google Map
+                    var mapOptions = {
+                        center: myAddress,
+                        zoom: 15,
+                        minZoom: 15,
+                        mapTypeId: google.maps.MapTypeId.ROADMAP
+                    };
+
+                    //Mostrar el mapa de Google en el control div con las Opciones definidas
+                    map = new google.maps.Map(document.getElementById("myDiv"), mapOptions);
+
+                    // Establecer marcador en el mapa
+                    vMarker = new google.maps.Marker({
+                        position: myAddress,
+                        animation: google.maps.Animation.BOUNCE,
+                        draggable: true
+                    });
+
+                    map.setCenter(vMarker.position);
+                    vMarker.setMap(map);
+
+                    google.maps.event.addListener(vMarker, 'dragend', function (evt) {
+                        $("#txtLat").val(evt.latLng.lat().toFixed(6));
+                        $("#txtLng").val(evt.latLng.lng().toFixed(6));
+
+                        map.panTo(evt.latLng);
+                    });
+
+
+                    $("#txtDireccion").change(function () {
+                        movePin();
+                    });
+
+                    function movePin() {
+                        var geocoder = new google.maps.Geocoder();
+
+                        var inputAddress = $("#txtDireccion").val();
+                        geocoder.geocode({
+                            "address": inputAddress
+                        }, function (results, status) {
+                            if (status == google.maps.GeocoderStatus.OK) {
+                                vMarker.setPosition(new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()));
+                                map.panTo(new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()));
+                                $("#txtLat").val(results[0].geometry.location.lat());
+                                $("#txtLng").val(results[0].geometry.location.lng());
+                            }
+                            var latitud = document.getElementById("txtLat").value;
+                            var longitud = document.getElementById("txtLng").value;
+                            var latlng = new google.maps.LatLng(latitud, longitud);
+                            // This is making the Geocode request
+                            var geocoder1 = new google.maps.Geocoder();
+                            geocoder1.geocode({ 'latLng': latlng }, function (results, status) {
+                                if (status !== google.maps.GeocoderStatus.OK) {
+                                    alert(status);
+                                }
+                                if (status == google.maps.GeocoderStatus.OK) {
+                                    var address = (results[0].formatted_address);
+                                    $("#Direccion").val(address);
+                                }
+                            });
+
+                        });
+                    }
+                });
+                
+
+
+                
+
+            }
+
+               
+             
+        }
     </script>  
 }

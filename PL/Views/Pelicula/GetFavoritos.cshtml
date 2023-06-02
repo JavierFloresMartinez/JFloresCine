@@ -1,0 +1,63 @@
+﻿@model ML.Peliculas
+@{
+    ViewData["Title"] = "GetAll";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container ">
+
+
+    <div class=row>
+        <div class="text-center">
+            <h2>PELICULAS FAVORITAS</h2>
+        </div>
+    </div>
+    <br />
+    <br />
+    <div class="row">
+        @foreach (ML.Peliculas pelicula in Model.PeliculasList)
+        {
+
+            <div style=" width: 20rem;">
+                <div class="card text-center">
+                    @if (pelicula.path == null || pelicula.path == " ")
+                    {
+
+                        <img src="/image/Usuario.jpg" class="card-img-top" style="height:350px;">
+                    }
+                    else
+                    {
+                        <img src="@pelicula.path@pelicula.poster_path" class="card-img-top" style="height:350px;">
+                    }
+
+                    <div class="card-body" style="height:250px;">
+                        <h5 class="card-title">@pelicula.original_title </h5>
+                        <p class="card-text">
+                            @if (pelicula.adult == false)
+                            {
+                            <p>Clasificacion B+: Acto para todo publico</p>
+
+                            }
+                            else
+                            {
+                            <p>Clasificacion +18 </p>
+
+                            }
+                        Lenguaje Original: @pelicula.original_language <br />
+                        Titulo: @pelicula.title
+                        </p>
+
+
+                        <a class="btn btn-danger glyphicon" href="@Url.Action("Delete", "Pelicula", new { idPelicula= pelicula.id })"><i class="bi bi-pencil-square" style="color: ivory"></i>Eliminar</a>
+
+
+                    </div>
+                </div>
+                <br />
+
+                <br />
+            </div>
+        }
+    </div>
+
+</div>
