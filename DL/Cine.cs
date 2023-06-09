@@ -15,6 +15,10 @@ public partial class Cine
 
     public int? Ventas { get; set; }
 
+    public double? Latitud { get; set; }
+
+    public double? Longitud { get; set; }
+
     public virtual Zona? IdZonaNavigation { get; set; }
 
 

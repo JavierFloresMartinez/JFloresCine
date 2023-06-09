@@ -8,5 +8,10 @@
         public int Venta { get; set; }
         public Zona Zona { get; set; }
         public List<Object> Cines { get; set; }
+        public List<Object> Porcentajes { get; set; }
+        public float Porcentaje { get; set; }
+        public float Latitud { get; set; }
+        public float Longitud { get; set; }
+
     }
 }

@@ -182,7 +182,46 @@ namespace PL.Controllers
         [HttpGet]
         public IActionResult Promedio()
         {
-            return View();
+            ML.Cine cine = new ML.Cine();
+            cine.Cines = new List<object>();
+            cine.Porcentajes = new List<object>();
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:5181/Api/");
+
+                var responseTask = client.GetAsync("Cine/GetAll");
+                responseTask.Wait();
+
+                var result = responseTask.Result;
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var readTask = result.Content.ReadAsAsync<ML.Result>();
+                    readTask.Wait();
+
+                    foreach (var resultItem in readTask.Result.Objects)
+                    {
+
+                        ML.Cine resultItemList = Newtonsoft.Json.JsonConvert.DeserializeObject<ML.Cine>(resultItem.ToString());
+                        cine.Cines.Add(resultItemList);
+                    }
+                }
+                else
+                {
+                    ViewBag.Message = "Ocurrio un error al hacer la consulta";
+                    return View("Modal");
+                }
+               
+                }
+
+            ML.Result resultPorcentaje = BL.Cine.calcularPorcentaje(cine);
+            cine.Porcentajes = resultPorcentaje.Objects;
+           
+
+            return View(cine);
         }
+
+
+      
     }
 }

@@ -60,10 +60,16 @@
                      
                  </div>
                 <div style="display:none">
-                    <input type="text" id="txtLat" name="txtlat">
+                    @Html.LabelFor(model => model.Latitud)
+
+                    @Html.TextBoxFor(model => model.Latitud, new { @class = "form-control", @id = "txtLat", @name ="txtLat", @readonly = true })
+
                 </div >
                 <div style="display:none">
-                    <input type="text" id="txtLng" name="txtLng">
+                    @Html.LabelFor(model => model.Longitud)
+
+                    @Html.TextBoxFor(model => model.Longitud, new { @class = "form-control", @id = "txtLng", @name ="txtLng", @readonly = true })
+
                 </div>
               
             </div>

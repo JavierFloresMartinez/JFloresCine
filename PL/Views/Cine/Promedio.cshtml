@@ -1,45 +1,221 @@
-﻿<!DOCTYPE HTML>
-<html>
-<head>
-	<script>
-		window.onload = function () {
+﻿@model ML.Cine
+@{
+    ViewData["Title"] = "Form";
+}
 
-			var options = {
-				title: {
-					text: "Desktop OS Market Share in 2017"
-				},
-				subtitles: [{
-					text: "As of November, 2017"
-				}],
-				animationEnabled: true,
-				data: [{
-					type: "pie",
-					startAngle: 40,
-					toolTipContent: "<b>{label}</b>: {y}%",
-					showInLegend: "true",
-					legendText: "{label}",
-					indexLabelFontSize: 16,
-					indexLabel: "{label} - {y}%",
-					dataPoints: [
-						{ y: 48.36, label: "Windows 7" },
-						{ y: 26.85, label: "Windows 10" },
-						{ y: 1.49, label: "Windows 8" },
-						{ y: 6.98, label: "Windows XP" },
-						{ y: 6.53, label: "Windows 8.1" },
-						{ y: 2.45, label: "Linux" },
-						{ y: 3.32, label: "Mac OS X 10.12" },
-						{ y: 4.03, label: "Others" }
-					]
-				}]
-			};
-			$("#chartContainer").CanvasJSChart(options);
+    <div class="row">
+        <div class="col-md-6">
+            <div id="chartContainer" @*style="height: 400px; width: 50%;*@"></div>
+        </div>
+        <div class="col-md-6">
+            <h1 class="text-center" style="text-shadow: 0 0 4px #4800ff;"> Cines</h1>
+            <div id="map" style="@*position: absolute;*@ width: 500px; height: 350px; border: 3px solid green; left: 100px;"></div>
+        </div>
 
-		}
-	</script>
-</head>
-<body>
-	<div id="chartContainer" style="height: 370px; width: 100%;"></div>
-	<script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
-	<script src="https://cdn.canvasjs.com/jquery.canvasjs.min.js"></script>
-</body>
-</html>
+    <div style="display:none">
+        <input type="text" id="txtLat" name="txtlat">
+    </div>
+    <div style="display:none">
+        <input type="text" id="txtLng" name="txtLng">
+    </div>
+    </div>
+   
+
+
+@section Scripts {
+
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSKBDdPPlfca_zTwyxKiicRQn1qfgRjLw&callback=initMap&libraries=&v=weekly&sensor=false" defer></script>
+    <script type="text/javascript">
+
+        window.onload = function () {
+
+            var chart = new CanvasJS.Chart("chartContainer", {
+                title: {
+                    text: "Total de Ventas por zona"
+                },
+                subtitles: [{
+                    text: "Periodo 2023"
+                }],
+                animationEnabled: true,
+                data: [
+                    {
+                        type: "pie",
+                        startAngle: 40,
+                        toolTipContent: "<b>{label}</b>: {y}%",
+                        showInLegend: "true",
+                        legendText: "{label}",
+                        indexLabelFontSize: 16,
+                        indexLabel: "{label} - {y}%",
+                        dataPoints: [
+                            @foreach(ML.Cine porcentaje in Model.Porcentajes)
+                            {
+                                 <text>{ y: @porcentaje.Porcentaje, label: "@porcentaje.Zona.Nombre" },</text>
+
+                            }
+
+                        ]
+                    }
+                ]
+            });
+
+            chart.render();
+
+        }
+
+
+
+    function initMap() {
+            if ($("#txtLatitud").val() == 0 && $("#txtLongitud").val() == 0) {
+
+                myLatlng = { lat: 19.59761, lng: -99.18054 };
+            } else {
+
+                myLatlng = { lat: 19.59761, lng: -99.18054 };
+            }
+
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 11,
+                center: myLatlng,
+            });
+            @foreach (ML.Cine cine in Model.Cines)
+                {
+                <text>
+                    var contentString = '<div id="content">' +
+                '<div id="siteNotice">' +
+                '</div>' +
+                'Direccion: ' + '@cine.Direccion' +
+                '<div id="bodyContent">' +
+                'Ventas:' + '@cine.Venta' + "<br>" +
+                'Zona:' + '@cine.Zona.Nombre' + "<br>" +
+                'ID:' + '@cine.IdCine' + "<br>" +
+                '</div>' +
+                '</div>';
+
+
+            var marker_@cine.IdCine = new google.maps.Marker({ position: { lat: @cine.Latitud, lng: @cine.Longitud }, map: map });
+
+            (marker_@cine.IdCine).addListener("click", function () {
+                (infoWindow_@cine.IdCine).open(map, marker_@cine.IdCine);
+        });
+        var infoWindow_@cine.IdCine = new google.maps.InfoWindow({
+            content: contentString,
+            ariaLabel: "Cines",
+        });
+        </text>
+        }
+
+
+
+            @*(infoWindow_@Model.ID).open(map);*@
+            // Configure the click listener.
+
+            @*'marker'+'@Model.ID'.addListener("click", function () {
+            infoWindow.open(map, marker);
+            });*@
+
+                    //map.addListener("click", (mapsMouseEvent) => {
+                    //    // Close the current InfoWindow.
+                    //    infoWindow.close();
+                    //    // Create a new InfoWindow.
+                    //    infoWindow = new google.maps.InfoWindow({
+                    //        position: mapsMouseEvent.latLng,
+                    //    });
+                    //    infoWindow.setContent(
+                    //        JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
+                    //    );
+
+                    //    infoWindow.open(map);
+                    //});
+                }
+
+
+        window.initMap = initMap;
+
+
+
+        //var jsonFile = [{ "Nombre": "Punto1", "Lat": 19.59761, "Lng": -99.18054, "FechaHora": "2020-11-03 10:09:58" },
+        //{ "Nombre": "Punto2", "Lat": 19.59764, "Lng": -99.18063, "FechaHora": "2020-11-03 10:11:16" },
+        //{ "Nombre": "Punto3", "Lat": 19.59784, "Lng": -99.1804, "FechaHora": "2020-11-03 10:58:24" },
+        //{ "Nombre": "Punto4", "Lat": 19.51953, "Lng": -99.20602, "FechaHora": "2020-11-03 15:01:50" },
+        //{ "Nombre": "Punto5", "Lat": 19.51987, "Lng": -99.20607, "FechaHora": "2020-11-05 08:51:40" }]
+
+        //for (i = 0; i < jsonFile.length; i++) {
+
+        //    var obj = jsonFile[i]
+        //    var marker = new google.maps.Marker({
+        //        position: { lat: obj.Lat, lng: obj.Lng },
+        //        map: map,
+        //        title: obj.Nombre
+        //    });
+
+        //}
+
+
+
+
+
+        @*function ShowDetails(e) {
+            /*  const uluru = { lat: -25.363, lng: 131.044 };*/
+            //const map = new google.maps.Map(document.getElementById("map"), {
+            //    zoom: 4,
+            //    center: uluru,
+            //});
+
+
+            $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetByCordenada")',
+            dataType: 'json',
+            data: {idAlumno, status},
+            success: {               },
+            error: function (ex) {
+            alert('Failed.' + ex);
+            }
+            });
+            const contentString =
+            '<div id="content">' +
+            '<div id="siteNotice">' +
+            "</div>" +
+            '<h1 id="firstHeading" class="firstHeading">Uluru</h1>' +
+            '<div id="bodyContent">' +
+            "<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large " +
+            "sandstone rock formation in the southern part of the " +
+            "Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) " +
+            "south west of the nearest large town, Alice Springs; 450&#160;km " +
+            "(280&#160;mi) by road. Kata Tjuta and Uluru are the two major " +
+            "features of the Uluru - Kata Tjuta National Park. Uluru is " +
+            "sacred to the Pitjantjatjara and Yankunytjatjara, the " +
+            "Aboriginal people of the area. It has many springs, waterholes, " +
+            "rock caves and ancient paintings. Uluru is listed as a World " +
+            "Heritage Site.</p>" +
+            '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">' +
+            "https://en.wikipedia.org/w/index.php?title=Uluru</a> " +
+            "(last visited June 22, 2009).</p>" +
+            "</div>" +
+            "</div>";
+            const infowindow = new google.maps.InfoWindow({
+            content: contentString,
+            ariaLabel: "Uluru",
+            });
+            const marker = new google.maps.Marker({
+            position: uluru,
+            map,
+            title: "Uluru (Ayers Rock)",
+            });
+
+            marker.addListener("click", () => {
+            infowindow.open({
+            anchor: marker,
+            map,
+            });
+            });
+            }*@
+
+                //window.initMap = initMap;
+
+    </script>
+
+    }
+

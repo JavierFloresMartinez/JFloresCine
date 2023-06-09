@@ -31,9 +31,7 @@ public partial class JfloresCineContext : DbContext
 
             entity.ToTable("Cine");
 
-            entity.Property(e => e.Direccion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Direccion).IsUnicode(false);
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .IsUnicode(false);
