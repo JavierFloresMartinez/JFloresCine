@@ -17,6 +17,8 @@ public partial class JfloresCineContext : DbContext
 
     public virtual DbSet<Cine> Cines { get; set; }
 
+    public virtual DbSet<Usuario> Usuarios { get; set; }
+
     public virtual DbSet<Zona> Zonas { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -39,6 +41,34 @@ public partial class JfloresCineContext : DbContext
             entity.HasOne(d => d.IdZonaNavigation).WithMany(p => p.Cines)
                 .HasForeignKey(d => d.IdZona)
                 .HasConstraintName("FK__CINE__IdZona__1273C1CD");
+        });
+
+        modelBuilder.Entity<Usuario>(entity =>
+        {
+            entity.HasKey(e => e.IdUsuario).HasName("PK__Usuario__5B65BF97FB503E70");
+
+            entity.ToTable("Usuario");
+
+            entity.HasIndex(e => e.CorreoElectronico, "UQ__Usuario__531402F31C95B5FE").IsUnique();
+
+            entity.HasIndex(e => e.Username, "UQ__Usuario__536C85E47FF12883").IsUnique();
+
+            entity.Property(e => e.ApellidoMaterno)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ApellidoPaterno)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Contrasenia).HasMaxLength(1);
+            entity.Property(e => e.CorreoElectronico)
+                .HasMaxLength(254)
+                .IsUnicode(false);
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Zona>(entity =>

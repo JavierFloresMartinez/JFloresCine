@@ -14,7 +14,7 @@ namespace ML
         public string ApellidoMaterno { get; set; }
         public string Username { get; set; }
         public string CorreoElectronico { get; set; }
-        public string Contrasenia { get; set; }
+        public byte[] Contrasenia { get; set; }
 
     }
 }
